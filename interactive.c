@@ -8,6 +8,7 @@ void print_env(char **env);
 int _exit_(char *status);
 int non_interactive(int argc, char **env, char *file_name);
 char *get_command(char *command);
+int create_commands(char **arv, char **env);
 
 /**
  * interactive - Calculate the length of a string.
@@ -26,7 +27,7 @@ int interactive(int argc, char **argv, char **env)
 	char **arv;
 	size_t length;
 	ssize_t myread;
-	int i = 0, count = 0, returnValue = 0;
+	int i = 0, count = 0, returnValue = 0, executed = 0;
 	pid_t id;
 
 	if (argc == 2)
@@ -91,7 +92,11 @@ int interactive(int argc, char **argv, char **env)
 				return (returnValue);
 			}
 			else
-				printf("%s: No such file or directory\n", argv[0]);
+			{
+				executed = create_commands(arv, env);
+				if (executed == 0)
+					printf("%s: No such file or directory\n", argv[0]);
+			}
 		}
 	}
 	return (returnValue);
