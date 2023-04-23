@@ -81,6 +81,7 @@ int interactive(int argc, char **argv, char **env)
 
 		if (command_path != NULL)
 		{
+			printf("command:%s\n", command_path);
 			id = fork();
 			if (id == 0)
 			{
@@ -111,11 +112,13 @@ int interactive(int argc, char **argv, char **env)
 					printf("%s: No such file or directory\n", argv[0]);
 			}
 		}
+		if (strcmp(command_path, arv[0]) != 0)
+			free(command_path);
+
 		free(arv);
 		free(command);
 		free(real_command);
 		free(real_command2);
-		free(command_path);
 	}
 	return (returnValue);
 }

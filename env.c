@@ -67,7 +67,9 @@ void set_env(char **arv, char **env)
 
 	while (env[i] != NULL)
 	{
+printf("env[%i]: %s\n", i, env[i]);
 		cpy = strdup(env[i]);
+printf("wait\n");
 		key = strtok(cpy, "=");
 		if (strcmp(selected_key, key) == 0)
 		{
