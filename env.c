@@ -58,9 +58,11 @@ char *set_row(char *selected_key, char *new_value, int full_length)
 
 void set_env(char **arv, char **env)
 {
-	char *cpy, *key, *selected_key = arv[1], *new_value = arv[2], *new_row;
+	char *cpy = NULL, *key, *new_row;
 	char **custom;
 	int i = 0, count = 0, found = 0;
+	char *selected_key = arv[1];
+	char *new_value = arv[2];
 	int full_length = strlen(selected_key) + strlen(new_value);
 
 	while (env[i] != NULL)
@@ -71,10 +73,13 @@ void set_env(char **arv, char **env)
 		{
 			new_row = set_row(selected_key, new_value, full_length);
 			env[i] = new_row;
+			free(new_row);
+			free(cpy);
 			found = 1;
 			break;
 		}
 		i++;
+		free(cpy);
 	}
 	if (found == 0)
 	{
@@ -95,6 +100,8 @@ void set_env(char **arv, char **env)
 		custom[i] = new_row;
 		custom[i + 1] = NULL;
 		env = custom;
+		free(custom);
+		free(new_row);
 	}
 }
 

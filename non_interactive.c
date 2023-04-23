@@ -7,6 +7,7 @@
 
 void print_env(char **env);
 int _exit_(char *status);
+void free_strings(int num, ...);
 
 /**
  * set_commands - Calculate the length of a string.
@@ -61,13 +62,16 @@ char *get_command(char *command)
 {
 	char *pathenv = getenv("PATH");
 	char *path_env = strdup(pathenv);
-	char *directory = strtok(path_env, ":");
+	char *directory;
 	char *full_path;
 
 	if (access(command, X_OK) == 0)
 	{
+		free(path_env);
 		return (command);
 	}
+
+	directory = strtok(path_env, ":");
 	while (directory != NULL)
 	{
 		full_path = malloc(strlen(directory) + strlen(command) + 2);
@@ -76,13 +80,17 @@ char *get_command(char *command)
 		strcat(full_path, command);
 		if (access(full_path, X_OK) == 0)
 		{
+			free(path_env);
 			return (full_path);
 		}
 		free(full_path);
 		directory = strtok(NULL, ":");
 	}
+	free(path_env);
 	return (NULL);
 }
+
+
 
 /**
  * non_interactive - Calculate the length of a string.
@@ -145,7 +153,7 @@ int non_interactive(char *programName, char **env, char *file_name)
 				wait(NULL);
 		}
 		lines++;
-		free(arv);
+		free_strings(2, arv, commandReal2);
 		arguments_no = 0;
 	}
 	return (0);

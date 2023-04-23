@@ -9,6 +9,8 @@ int _exit_(char *status);
 int non_interactive(int argc, char **env, char *file_name);
 char *get_command(char *command);
 int create_commands(char **arv, char **env);
+void free_strings(int num, ...);
+void free_array(char **arr);
 
 /**
  * interactive - Calculate the length of a string.
@@ -22,13 +24,7 @@ int create_commands(char **arv, char **env);
 
 int interactive(int argc, char **argv, char **env)
 {
-	char *command = NULL;
-	char *real_command, *real_command2, *command_name, *command_path;
-	char **arv;
-	size_t length;
-	ssize_t myread;
-	int i = 0, count = 0, returnValue = 0, executed = 0;
-	pid_t id;
+	int returnValue = 0;
 
 	if (argc == 2)
 	{
@@ -38,22 +34,33 @@ int interactive(int argc, char **argv, char **env)
 
 	while (1)
 	{
+
+		char *command = NULL;
+		char *real_command, *real_command2, *command_name, *command_path, *a;
+		char **arv;
+		size_t length;
+		ssize_t myread;
+		int i = 0, count = 0, executed = 0;
+		pid_t id;
+
 		printf("$ ");
 		myread = getline(&command, &length, stdin);
 		if (myread == -1)
+		{
+			free(command);
 			break;
+		}
 
-		real_command = malloc(sizeof(char) * (myread - 1));
+		real_command = malloc(sizeof(char) * (myread + 1));
 		i = 0;
-		while (command[i] != '\0')
+		while (command[i] != '\0' && command[i] != '\n')
 		{
 			real_command[i] = command[i];
-			if (i == myread - 1)
-				real_command[i] = '\0';
 			i++;
 		}
 		real_command[i] = '\0';
 		i = 0;
+
 		real_command2 = strdup(real_command);
 		command_name = strtok(real_command2, " ");
 		command_path = get_command(command_name);
@@ -71,6 +78,7 @@ int interactive(int argc, char **argv, char **env)
 			i++;
 		}
 		arv[i] = NULL;
+
 		if (command_path != NULL)
 		{
 			id = fork();
@@ -89,6 +97,11 @@ int interactive(int argc, char **argv, char **env)
 			if (strcmp(arv[0], "exit") == 0)
 			{
 				(returnValue) = _exit_(arv[1]);
+				free(command);
+				free(command_path);
+				free(real_command);
+				free(real_command2);
+				free(arv);
 				return (returnValue);
 			}
 			else
@@ -98,6 +111,11 @@ int interactive(int argc, char **argv, char **env)
 					printf("%s: No such file or directory\n", argv[0]);
 			}
 		}
+		free(arv);
+		free(command);
+		free(real_command);
+		free(real_command2);
+		free(command_path);
 	}
 	return (returnValue);
 }

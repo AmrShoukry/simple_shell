@@ -28,6 +28,7 @@ int create_commands(char **arv, char **env)
 		if (arv[1] != NULL && arv[2] != NULL && arv[3] == NULL)
 		{
 			set_env(arv, env);
+printf("\nhappend\n");
 		}
 		else
 		{
@@ -38,6 +39,6 @@ int create_commands(char **arv, char **env)
 	{
 		executed = 0;
 	}
-
+printf("wala\n");
 	return (executed);
 }
