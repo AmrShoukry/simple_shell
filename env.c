@@ -1,156 +1,142 @@
-#include "all.h"
+#include <stdio.h>
+#include <unistd.h>
+#include <string.h>
+#include <stdlib.h>
+#include <sys/wait.h>
 
 /**
- * get_environment_value_helper - Function.
+ * print_env - Calculate the length of a string.
  *
- * @l: parameter1
- * @n: parameter2
- * @m: parameter3
- * @e: parameter4
- * @v: parameter5
+ * @env: program
  *
- * Return: value.
+ * Return: The length of the string.
  */
 
-void get_environment_value_helper(int *l, int *n, int m, char **e, char *v)
-{
-	while (e[*l][*n] != '\0' && e[*l][*n] != '\n')
-	{
-		v[*n - m] = e[*l][*n];
-		*n = *n + 1;
-	}
-	v[*n - m] = '\0';
-}
 
-/**
- * get_environment_variable_value_helper2 - Function.
- *
- * @n1: parameter1
- * @n2: parameter2
- * @n3: parameter3
- *
- * Return: value.
- */
-
-void get_environment_variable_value_helper2(int *n1, int *n2, int *n3)
-{
-	*n1 = *n1 + 1;
-	*n2 = 0;
-	*n3 = 0;
-}
-
-
-
-/**
- * get_environment_variable_value - Function.
- *
- * @env: parameter1
- * @text: parameter2
- *
- * Return: value.
- */
-
-char *get_environment_variable_value(char **env, char *text)
-{
-	int line = 0, old_cursor = 0, new_cursor = 0, found = 0, count = 0, minus = 0;
-	char *value;
-
-	while (env[line] != NULL)
-	{
-		while (env[line][new_cursor] != '\0' && env[line][new_cursor] != '\n')
-		{
-			if (env[line][new_cursor] == '=')
-			{
-				found = 1;
-				while (new_cursor > old_cursor && env[line][old_cursor] != '\0')
-				{
-					if (env[line][old_cursor] != text[old_cursor])
-						found = 0;
-					old_cursor++;
-				}
-				if (found == 1)
-				{
-					old_cursor = ++new_cursor;
-					minus = new_cursor;
-					while (env[line][old_cursor] != '\0' && env[line][old_cursor++] != '\n')
-						count++;
-					value = malloc(sizeof(char) * (count + 1));
-					if (value == NULL)
-					{
-						perror("Memory allocation failed");
-						exit(1);
-					}
-					get_environment_value_helper(&line, &new_cursor, minus, env, value);
-					value[new_cursor - minus] = '\0';
-					return (value);
-				}
-				break;
-			}
-			new_cursor++;
-		}
-		get_environment_variable_value_helper2(&line, &new_cursor, &old_cursor);
-	}
-	return (NULL);
-}
-
-
-
-
-/**
- * print_environment_variables - Function.
- *
- * @env: parameter1
- *
- * Return: value.
- */
-
-void print_environment_variables(char **env)
+void print_env(char **env)
 {
 	int i = 0;
 
 	while (env[i] != NULL)
 	{
-		write(1, env[i], string_length(env[i]));
-		write(1, "\n", 1);
+		printf("%s\n", env[i]);
 		i++;
 	}
 }
 
 
-
 /**
- * get_command_path - Function.
+ * set_row - Calculate the length of a string.
  *
- * @paths: parameter1
- * @command: parameter2
+ * @selected_key: key
+ * @new_value: value
+ * @full_length: num
  *
- * Return: value.
+ * Return: The length of the string.
  */
 
-
-char *get_command_path(char *paths, char *command)
+char *set_row(char *selected_key, char *new_value, int full_length)
 {
-	char *path, *program;
+	char *new_row;
 
-	if (access(command, X_OK) == 0)
+	new_row = malloc(sizeof(char) * (full_length + 2));
+	strcpy(new_row, selected_key);
+	strcat(new_row, "=");
+	strcat(new_row, new_value);
+
+	return (new_row);
+}
+
+/**
+ * set_env - Calculate the length of a string.
+ *
+ * @arv: arr
+ * @env: arr
+ *
+ * Return: The length of the string.
+ */
+
+void set_env(char **arv, char **env)
+{
+	char *cpy = NULL, *key, *new_row;
+	char **custom;
+	int i = 0, count = 0, found = 0;
+	char *selected_key = arv[1];
+	char *new_value = arv[2];
+	int full_length = strlen(selected_key) + strlen(new_value);
+
+	while (env[i] != NULL)
 	{
-		return (command);
+printf("env[%i]: %s\n", i, env[i]);
+		cpy = strdup(env[i]);
+printf("wait\n");
+		key = strtok(cpy, "=");
+		if (strcmp(selected_key, key) == 0)
+		{
+			new_row = set_row(selected_key, new_value, full_length);
+			env[i] = new_row;
+			free(new_row);
+			free(cpy);
+			found = 1;
+			break;
+		}
+		i++;
+		free(cpy);
+	}
+	if (found == 0)
+	{
+		i = 0;
+		while (env[i] != NULL)
+		{
+			i++;
+			count++;
+		}
+		custom = malloc(sizeof(char *) * (count + 2));
+		i = 0;
+		while (env[i] != NULL)
+		{
+			custom[i] = env[i];
+			i++;
+		}
+		new_row = set_row(selected_key, new_value, full_length);
+		custom[i] = new_row;
+		custom[i + 1] = NULL;
+		env = custom;
+		free(custom);
+		free(new_row);
+	}
+}
+
+/**
+ * _exit_ - Calculate the length of a string.
+ *
+ * @status: program
+ *
+ * Return: The length of the string.
+ */
+
+int _exit_(char *status)
+{
+	int number = 0;
+	int index = 0;
+
+	if (status == NULL)
+	{
+		return (0);
 	}
 
-	path = strtok(paths, ":");
-	while (path != NULL)
+	while (status[index] != '\0')
 	{
-		program = string_concatenate_with_char(path, '/', command);
-		if (access(program, X_OK) == 0)
+		if (status[index] >= '0' && status[index] <= '9')
 		{
-			return (program);
+			number = (number * 10) + (status[index] - 48);
 		}
 		else
 		{
-			free(program);
+			return (1);
 		}
-		path = strtok(NULL, ":");
+		index++;
 	}
-
-	return (NULL);
+	return (number);
 }
+
