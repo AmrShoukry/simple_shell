@@ -1,28 +1,33 @@
-#include <stdio.h>
-#include <unistd.h>
-#include <string.h>
-#include <stdlib.h>
-#include "main.h"
+#include "all.h"
 
 /**
- * main - Calculate the length of a string.
+ * main - Function.
  *
- * @argc: number
- * @argv: arv
- * @env: array
+ * @argc: parameter1
+ * @argv: parameter2
  *
- * Return: The length of the string.
+ * Return: value.
  */
 
-int main(int argc, char **argv, char **env)
+int main(int argc, char **argv)
 {
 	int active = isatty(STDIN_FILENO);
 	int exitNumber = 0;
 
-	if (active == 0 || argc == 10)
-		exitNumber = non_interactive(argv[0], env, NULL);
+	if (active == 0)
+	{
+		exitNumber = non_interactive(argv[0], NULL, environ);
+	}
 	else
-		exitNumber = interactive(argc, argv, env);
-
+	{
+		while (exitNumber == 0)
+		{
+			exitNumber = interactive(argc, argv, environ);
+		}
+		if (exitNumber == 20030803)
+		{
+			exitNumber = 0;
+		}
+	}
 	return (exitNumber);
 }
